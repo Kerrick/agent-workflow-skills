@@ -60,6 +60,16 @@ On Windows, use `npx skills`, which copies the folders for you.
 
 Work with your agent the way you usually would, such as "how far along is the bug list?", "split this across a few sub-agents", or "commit and push this". Your agent picks a skill by comparing your request with each skill's description. To be sure it uses one, name it: "use trunk-based-development to land this change".
 
+To get newer versions of skills you installed with `-g`, run:
+
+```
+npx skills update -g
+```
+
+## Reporting problems
+
+Open an issue at [github.com/Kerrick/agent-workflow-skills/issues](https://github.com/Kerrick/agent-workflow-skills/issues). Include the agent and model you used, the prompt you gave it, and what the agent did that broke a rule or missed one.
+
 ## License
 
-[CC0-1.0](LICENSES/CC0-1.0.txt). The repository follows the [REUSE](https://reuse.software/) specification; `REUSE.toml` gives each file's license.
+What you make with the skills is yours, without conditions. The skills, and the rest of the repository, are dedicated to the public domain under [CC0 1.0](LICENSES/CC0-1.0.txt). [`REUSE.toml`](REUSE.toml) gives every file's license, following the [REUSE specification](https://reuse.software/), and [`LICENSES/`](LICENSES/) holds the text.
