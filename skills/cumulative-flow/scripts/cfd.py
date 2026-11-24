@@ -150,14 +150,19 @@ def draw(steps, counts, markers, title, offset_hours, total):
     local = timezone(timedelta(hours=offset_hours))
     sign = "+" if offset_hours >= 0 else "-"
     zone = f"UTC{sign}{abs(offset_hours):g}"
+    suffix = "" if offset_hours else "Z"
+    previous_day = None
     while tick <= end:
         if tick >= start:
+            shown = tick.astimezone(local)
             out.append(f'<line x1="{x(tick):.1f}" x2="{x(tick):.1f}" y1="{y(0):.1f}" y2="{y(0) + 5:.1f}" stroke="currentColor"/>')
-            out.append(f'<text x="{x(tick):.1f}" y="{y(0) + 19:.1f}" text-anchor="middle">{tick:%d %H:%M}Z</text>')
-            if offset_hours:
-                out.append(f'<text x="{x(tick):.1f}" y="{y(0) + 33:.1f}" text-anchor="middle" fill-opacity="0.7">'
-                           f'{tick.astimezone(local):%d %H:%M} ({zone})</text>')
+            out.append(f'<text x="{x(tick):.1f}" y="{y(0) + 19:.1f}" text-anchor="middle">{shown:%H:%M}{suffix}</text>')
+            if shown.date() != previous_day:
+                out.append(f'<text x="{x(tick):.1f}" y="{y(0) + 33:.1f}" text-anchor="middle" font-weight="bold">{shown:%b} {shown.day}</text>')
+            previous_day = shown.date()
         tick += timedelta(hours=tick_hours)
+    out.append(f'<text x="{left + plot_w / 2:.1f}" y="{y(0) + 50:.1f}" text-anchor="middle" fill-opacity="0.7">'
+               f'times in {zone if offset_hours else "UTC"}</text>')
     for index, (moment, label) in enumerate(markers):
         if start <= moment <= end:
             out.append(f'<line x1="{x(moment):.1f}" x2="{x(moment):.1f}" y1="{top}" y2="{y(0):.1f}" stroke="currentColor" '
@@ -188,7 +193,7 @@ def main():
     parser.add_argument("--out", type=Path, help="SVG to write (default: cfd.svg beside the ledger)")
     parser.add_argument("--title", default="Cumulative flow of work items", help="the chart's heading")
     parser.add_argument("--step-minutes", type=int, default=30, help="how often to count (default 30)")
-    parser.add_argument("--utc-offset", type=float, default=0, help="hours from UTC for a second row of axis labels, such as -6")
+    parser.add_argument("--utc-offset", type=float, default=0, help="hours from UTC for the axis labels, such as -6 (default 0: labels in UTC)")
     parser.add_argument("--markers", type=Path, help="tab-separated file of TIME<TAB>LABEL lines to draw as vertical marks")
     parser.add_argument("--compare-hours", type=float, default=6, help="also report the counts this many hours ago (default 6)")
     parser.add_argument("--json", action="store_true", help="print the summary as JSON")
