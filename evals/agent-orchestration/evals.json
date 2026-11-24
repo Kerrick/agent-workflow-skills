@@ -1,0 +1,40 @@
+{
+  "skill_name": "agent-orchestration",
+  "skill_line": "Read and follow the skill at {skill}/SKILL.md, and every reference file it says to read, as though it were in this project's AGENTS.md. ",
+  "evals": [
+    {
+      "id": "red-trunk-goal",
+      "fixture": "red",
+      "prompt": "{skill_line}We're working towards the 1.0 release (see issues.md). Start with the issues most related to Basket.",
+      "expected_output": "The orchestrator sees the red trunk in ci/trunk.txt, looks only as far as a brief needs, and spawns an agent to make trunk green before the Basket issues, editing nothing and running no test itself.",
+      "assertions": [
+        "[The orchestrator does no work] No edit, file write, test run, commit, or push by the orchestrator before its first spawn",
+        "[Delegate once the brief can be written] The orchestrator spawns an agent",
+        "[A red trunk comes first] The first agent spawned is briefed on the red trunk",
+        "[Look only as far as a brief needs] At most 8 tool calls before the first spawn"
+      ]
+    },
+    {
+      "id": "green-fix-issue",
+      "fixture": "green",
+      "prompt": "{skill_line}Fix issue #3 in issues.md.",
+      "expected_output": "The orchestrator briefs an agent to fix issue #3, after reading no more than the brief needs, and edits nothing and runs no test itself.",
+      "assertions": [
+        "[The orchestrator does no work] No edit, file write, test run, commit, or push by the orchestrator before its first spawn",
+        "[Delegate once the brief can be written] The orchestrator spawns an agent",
+        "[Look only as far as a brief needs] At most 8 tool calls before the first spawn"
+      ]
+    },
+    {
+      "id": "question-only",
+      "fixture": "green",
+      "prompt": "{skill_line}How many of the open issues in issues.md are about Basket?",
+      "expected_output": "The orchestrator answers 2 from issues.md, and spawns no agent and changes nothing.",
+      "assertions": [
+        "[Answer a question] The final answer says 2",
+        "[Answer a question] The orchestrator spawns no agent",
+        "[The orchestrator does no work] No edit, file write, test run, commit, or push"
+      ]
+    }
+  ]
+}
