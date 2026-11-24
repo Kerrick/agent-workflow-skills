@@ -18,11 +18,22 @@ from pathlib import Path
 from xml.sax.saxutils import escape
 
 COLUMNS = ["id", "title", "kind", "found", "started", "landed", "commits", "note"]
-BANDS = [
-    ("Done (landed)", "#4a7c59"),
-    ("In progress (started)", "#c08a2d"),
-    ("Queue (found, not started)", "#8a94a6"),
+BANDS = [  # (name, light-mode fill, dark-mode fill)
+    ("Done (landed)", "#4a7c59", "#6fbf8a"),
+    ("In progress (started)", "#c08a2d", "#e0a94a"),
+    ("Queue (found, not started)", "#8a94a6", "#9aa5b9"),
 ]
+INK = ("#1f2328", "#e6edf3")  # text and lines, light then dark
+PAPER = ("#ffffff", "#0d1117")  # background, light then dark
+
+
+def style():
+    """CSS that follows the viewer's light or dark scheme, with light as the fallback."""
+    rules = [":root { color-scheme: light dark; color: %s; color: light-dark(%s, %s); }" % (INK[0], *INK),
+             ".paper { fill: %s; fill: light-dark(%s, %s); }" % (PAPER[0], *PAPER)]
+    rules += [".band%d { fill: %s; fill: light-dark(%s, %s); }" % (i, light, light, dark)
+              for i, (_, light, dark) in enumerate(BANDS)]
+    return "<style>" + " ".join(rules) + "</style>"
 
 
 def fail(code, message):
@@ -126,7 +137,8 @@ def draw(steps, counts, markers, title, offset_hours, total):
 
     out = [f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" width="{width}" height="{height}" '
            f'font-family="sans-serif" font-size="12" fill="currentColor">',
-           f"<title>{escape(title)}</title>",
+           f"<title>{escape(title)}</title>", style(),
+           '<rect class="paper" width="100%" height="100%"/>',
            f'<text x="{left}" y="24" font-size="16" font-weight="bold">{escape(title)}</text>']
     grid = max(1, y_max // 10)
     for value in range(0, y_max + 1, grid):
@@ -135,12 +147,12 @@ def draw(steps, counts, markers, title, offset_hours, total):
     out.append(f'<text transform="translate(14,{top + plot_h / 2}) rotate(-90)" text-anchor="middle">work items (cumulative)</text>')
     stacked = [(c["done"], c["done"] + c["in_progress"], c["done"] + c["in_progress"] + c["queue"]) for c in counts]
     for layer in (2, 1, 0):
-        name, color = BANDS[layer]
+        name = BANDS[layer][0]
         upper = [s[layer] for s in stacked]
         lower = [0] * len(stacked) if layer == 0 else [s[layer - 1] for s in stacked]
         points = [f"{x(steps[k]):.1f},{y(upper[k]):.1f}" for k in range(len(steps))]
         points += [f"{x(steps[k]):.1f},{y(lower[k]):.1f}" for k in reversed(range(len(steps)))]
-        out.append(f'<polygon points="{" ".join(points)}" fill="{color}" fill-opacity="0.9" stroke="currentColor" '
+        out.append(f'<polygon points="{" ".join(points)}" class="band{layer}" fill-opacity="0.9" stroke="currentColor" '
                    f'stroke-opacity="0.5" stroke-width="0.6"><title>{name}</title></polygon>')
     out.append(f'<line x1="{left}" x2="{left + plot_w}" y1="{y(0):.1f}" y2="{y(0):.1f}" stroke="currentColor"/>')
     out.append(f'<line x1="{left}" x2="{left}" y1="{top}" y2="{y(0):.1f}" stroke="currentColor"/>')
@@ -174,9 +186,9 @@ def draw(steps, counts, markers, title, offset_hours, total):
     out.append(f'<text x="{edge}" y="{y(last["done"] + last["in_progress"] / 2) + 4:.1f}" font-weight="bold">{last["in_progress"]} in progress</text>')
     out.append(f'<text x="{edge}" y="{y(last["done"] + last["in_progress"] + last["queue"] / 2) + 4:.1f}" font-weight="bold">{last["queue"]} queue</text>')
     out.append(f'<text x="{edge}" y="{top - 6}">total {total}</text>')
-    for index, (name, color) in enumerate(BANDS):
+    for index, (name, _, _) in enumerate(BANDS):
         at = left + index * 250
-        out.append(f'<rect x="{at}" y="{height - 32}" width="14" height="14" fill="{color}" stroke="currentColor" stroke-opacity="0.5"/>')
+        out.append(f'<rect x="{at}" y="{height - 32}" width="14" height="14" class="band{index}" stroke="currentColor" stroke-opacity="0.5"/>')
         out.append(f'<text x="{at + 20}" y="{height - 21}">{name}</text>')
     out.append("</svg>")
     return "\n".join(out) + "\n"
