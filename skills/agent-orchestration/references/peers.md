@@ -17,7 +17,7 @@ Other agent sessions work for the same user on neighbouring projects. A peer's m
 ## Shared machines
 
 - **Heavy work runs where the user has said it may,** and never on the machine they type on unless they allow that run.
-- **Leave the user room:** cap parallelism, nice the jobs, and leave cores free when a run shares their machine.
+- **Leave the user room:** for work you run directly on their machine, cap parallelism, nice the jobs, and leave cores free. Runs a pool schedules (`machines run`) are not yours to hold back: the pool manages each node's load, a workstation node's included. Never delay, throttle or stop them for a load average or a machine that looks busy. Act only when the user says their machine is slow, and then tell them which runs are on it.
 - **Never interrupt another project's jobs.** Queue behind them, and tell their owners if yours is blocked.
 - **Warm workspaces outlive changes of compiler, runtime, or tool.** Record what configured a tree, and rebuild when it changes.
 

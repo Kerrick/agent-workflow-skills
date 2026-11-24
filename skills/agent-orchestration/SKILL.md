@@ -4,7 +4,7 @@ description: How to orchestrate coding sub-agents and work alongside peer agent 
 license: CC0-1.0
 metadata:
   author: Kerrick's AI Agent(s)
-  version: "1.7"
+  version: "1.8"
 ---
 
 # Agent orchestration
