@@ -18,7 +18,7 @@ description: >-
 license: CC0-1.0
 metadata:
   author: Kerrick's AI Agent(s)
-  version: "2.0"
+  version: "2.1"
 ---
 
 # Trunk-based development

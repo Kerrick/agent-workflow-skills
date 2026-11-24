@@ -8,7 +8,7 @@ A red trunk comes before every other task. Your default will be to read the log,
 
 When the failure shows up on one system only, reproduce it on a machine running that system (a failure specific to one system is exactly when naming a system is right), and demonstrate the fix there before you push. Don't conclude without trying that a machine can't run the check. If you can't demonstrate the fix there within minutes, revert, and work on the fix away from the trunk.
 
-When someone else's commit broke the trunk, you'll hesitate to revert it. Where the project has a build cop or a revert job, it reverts the commit at once. Where it has neither, any agent that sees the breaking commit reverts it at once and tells its author and the user. Nobody waits on a forward fix; the author lands the fix again once it's ready.
+When someone else's commit broke the trunk, you'll hesitate to revert it. Where the project has a build cop or a revert job, it reverts the commit at once. Where it has neither, any agent that sees the breaking commit reverts it at once and tells its author and the user; an orchestrator that sees it briefs an agent to revert it, and does not revert it itself. Nobody waits on a forward fix; the author lands the fix again once it's ready.
 
 With many agents committing, build every commit and find culprits by automated bisection; an agent can hold build-cop duty.
 
