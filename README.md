@@ -10,19 +10,29 @@ An Agent Skill is a folder with a `SKILL.md` file of instructions. Your agent lo
 
 ## Example: drawing a cumulative flow diagram
 
-cumulative-flow includes `scripts/cfd.py`, which reads the ledger, a tab-separated file with this header row:
+cumulative-flow includes `scripts/ledger.py`, which keeps the ledger, and `scripts/cfd.py`, which draws it. The ledger is a tab-separated file with this header row:
 
 ```
 id	title	kind	found	started	landed	commits	note
 ```
 
-Run from the skill's folder, it writes `cfd.svg` beside the ledger and prints the counts now and six hours ago:
+`ledger.py` writes the times, one command for each thing that happens to an item, so nobody edits rows or reads the commit log for them. Run from the skill's folder:
+
+```
+uv run scripts/ledger.py add path/to/ledger.tsv D7 defect The importer drops the last row
+uv run scripts/ledger.py start path/to/ledger.tsv D7
+uv run scripts/ledger.py land path/to/ledger.tsv D7 4f2a9c1 --repo path/to/repository
+```
+
+Where the work is tracked in GitHub issues, `uv run scripts/ledger.py sync path/to/ledger.tsv owner/repository` fills the ledger from them instead.
+
+`cfd.py` writes `cfd.svg` beside the ledger, readable in light and dark, and prints the counts now and six hours ago:
 
 ```
 uv run scripts/cfd.py path/to/ledger.tsv --title "Road to 1.0" --utc-offset -6
 ```
 
-Run `uv run scripts/cfd.py --help` for the other options, such as `--markers` for vertical marks at a release or a broken build, and `--json` for the summary as JSON.
+Run either script with `--help` for the rest: for `cfd.py`, such as `--markers` for vertical marks at a release or a broken build, and `--json` for the summary as JSON.
 
 ## Compatibility
 
@@ -31,7 +41,7 @@ Run `uv run scripts/cfd.py --help` for the other options, such as `--markers` fo
 | Format | The [Agent Skills specification](https://agentskills.io/specification). |
 | Agent | Any agent that loads Agent Skills. agent-orchestration names Claude models (Sonnet, Opus) and Claude Code features in places. |
 | Installing | [Node.js](https://nodejs.org/), for `npx skills`. Or copy the folders by hand. |
-| `cfd.py` (cumulative-flow only) | [uv](https://docs.astral.sh/uv/), or Python 3.11 or later with `python3 scripts/cfd.py`. It uses only the standard library. |
+| `cfd.py` and `ledger.py` (cumulative-flow only) | [uv](https://docs.astral.sh/uv/), or Python 3.11 or later with `python3 scripts/cfd.py`. They use only the standard library. `ledger.py land` needs git, and `ledger.py sync` the [GitHub CLI](https://cli.github.com/), signed in. |
 
 ## Installation
 
